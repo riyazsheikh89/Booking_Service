@@ -14,7 +14,6 @@ const create = async (req, res) => {
             err: {}
         })
     } catch (error) {
-        console.log("from booking controller: ", error);
         return res.status(error.statusCode).json({
             message: error.message,
             success: false,

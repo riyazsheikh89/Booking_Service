@@ -31,7 +31,7 @@ class BookingService {
             return finalBooking;
 
         } catch (error) {
-            if(error.nae == 'RepositoryError' || error.name == 'ValidationError') {
+            if(error.name == 'RepositoryError' || error.name == 'ValidationError') {
                 throw error;
             }
             throw new ServiceError();
