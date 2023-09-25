@@ -1,28 +1,46 @@
-const {BookingService} = require('../services/index');
 const {StatusCodes} = require('http-status-codes');
+const {BookingService} = require('../services/index');
+const { createChannel, publishMessage } = require("../utils/message_queue");
+const { REMINDER_BINDING_KEY } = require("../config/serverConfig");
+
 
 const bookingService = new BookingService();
 
-const create = async (req, res) => {
-    try {
-        const response = await bookingService.createBooking(req.body);
-        console.log("from booking controller: ", response);
-        return res.status(StatusCodes.OK).json({
-            success: true,
-            message: 'Successfully booked ticket',
-            data: response,
-            err: {}
-        })
-    } catch (error) {
-        return res.status(error.statusCode).json({
-            message: error.message,
-            success: false,
-            err: error.explanation,
-            data: {}
-        });
+class BookingController {
+    constructor() {
+
     }
+
+    async sendMessageToQueue (req, res) {
+        const channel = await createChannel();
+        const data = {
+            message: "successfuly setup message queue"
+        }
+        publishMessage(channel, REMINDER_BINDING_KEY, JSON.stringify(data));
+        return res.status(200).json({
+            message: "Successfully published the event"
+        })
+    }
+
+    async create (req, res) {
+        try {
+            const response = await bookingService.createBooking(req.body);
+            console.log("from booking controller: ", response);
+            return res.status(StatusCodes.OK).json({
+                success: true,
+                message: 'Successfully booked ticket',
+                data: response,
+                err: {}
+            })
+        } catch (error) {
+            return res.status(error.statusCode).json({
+                message: error.message,
+                success: false,
+                err: error.explanation,
+                data: {}
+            });
+        }
+    }   
 }
 
-module.exports = {
-    create
-}
+module.exports = BookingController;
